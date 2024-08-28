@@ -50,7 +50,7 @@ export default function Serverlist() {
             servers.map((server) => (
               <Link
                 key={`${server.ip}:${server.port}`}
-                href={`/server/${server.ip}:${server.port}`}
+                href="/"
                 className="flex justify-between items-center gap-4 p-1 hover:bg-bgSecondary hover:text-white rounded-md transition-colors server-link"
               >
                 {/* Show flag based on countryCode */}
