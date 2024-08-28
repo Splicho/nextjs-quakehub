@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Skeleton } from './ui/skeleton';
 
 interface Server {
   ip: string;
@@ -18,6 +19,7 @@ interface Server {
 export default function Serverlist() {
   const [servers, setServers] = useState<Server[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fadeIn, setFadeIn] = useState(false); // State to trigger the fade-in
 
   useEffect(() => {
     const fetchServers = async () => {
@@ -32,13 +34,33 @@ export default function Serverlist() {
         console.error('Error fetching servers:', error);
       } finally {
         setLoading(false);
+        setFadeIn(true); // Trigger fade-in after loading
       }
     };
 
     fetchServers();
   }, []);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) {
+    // Return Skeleton components while loading
+    return (
+      <section>
+        <div className="rounded-[0.5rem] border">
+          <div className="flex flex-col gap-1 p-1">
+            {Array.from({ length: 50 }).map((_, index) => (
+              <div key={index} className="flex justify-between items-center gap-4 p-1 rounded-md">
+                <Skeleton className="w-6 h-6 flex-shrink-0" />
+                <Skeleton className="flex-grow h-6" />
+                <Skeleton className="flex-shrink-0 w-12 h-6 text-center" />
+                <Skeleton className="flex-shrink-0 w-80 h-6 text-center" />
+                <Skeleton className="flex-shrink-0 w-80 h-6 text-center" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section>
@@ -47,15 +69,17 @@ export default function Serverlist() {
           {servers.length === 0 ? (
             <p>No servers found</p>
           ) : (
-            servers.map((server) => (
+            servers.map((server, index) => (
               <Link
-                key={`${server.ip}:${server.port}`}
+                key={`${server.ip || 'no-ip'}:${server.port || 'no-port'}-${index}`}
                 href="/"
-                className="flex justify-between items-center gap-4 p-1 hover:bg-bgSecondary hover:text-white rounded-md transition-colors server-link"
+                className={`flex justify-between items-center gap-4 p-1 hover:bg-bgSecondary hover:text-white rounded-md transition-colors server-link
+                ${fadeIn ? 'opacity-1 translate-y-0' : 'opacity-0 translate-y-4'} 
+                transition-opacity transition-transform duration-500 delay-[${index * 100}ms]
+                `}
               >
-                {/* Show flag based on countryCode */}
                 <Image
-                  src={`/flags/${server.countryCode}.png`} // Ensure you have flag images named according to country codes
+                  src={`/flags/${server.countryCode}.png`}
                   alt={`${server.countryCode} Flag`}
                   className="w-6 flex-shrink-0"
                   width={45}
