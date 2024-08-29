@@ -12,6 +12,7 @@ interface PostData {
   date: string;
   author: string;
   cover: string; // Add the cover field
+  excerpt: string; // Add the excerpt field
 }
 
 interface Props {
@@ -30,12 +31,11 @@ export default function News({ allPostsData }: Props) {
       <div className="py-8">
         <h1 className="text-4xl tracking-tight font-bold">QuakeHub News</h1>
         <p className="mt-4">
-          Read all the news about QuakeHub changes, updates, announcements, and
-          more.
+          Read all the news about QuakeHub changes, updates, announcements, and more.
         </p>
       </div>
       <div className="flex gap-6">
-        {allPostsData.map(({ id, title, date, author, cover }) => {
+        {allPostsData.map(({ id, title, date, author, cover, excerpt }) => {
           const authorImg =
             config.news.authors[author] || "/path-to-default-author-image.jpg";
 
@@ -43,7 +43,7 @@ export default function News({ allPostsData }: Props) {
             <NewsCard
               key={id}
               title={title}
-              description="Click to read more..."
+              description={excerpt} // Use the excerpt as description
               date={date}
               imgSrc={cover} // Use the cover image from the markdown
               imgAlt={title}

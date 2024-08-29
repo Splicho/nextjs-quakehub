@@ -12,30 +12,44 @@ export interface PostData {
   date: string;
   author: string;
   cover: string;
+  excerpt: string; // Add the excerpt field
 }
 
 export interface PostContent extends PostData {
   contentHtml: string;
 }
 
+// Define the path to your posts directory
 const postsDirectory = path.join(process.cwd(), 'src/content/news');
 
+// Function to generate an excerpt
+const generateExcerpt = (content: string): string => {
+  const MAX_LENGTH = 50; // Maximum length for excerpt
+  return content.length > MAX_LENGTH
+    ? content.substring(0, MAX_LENGTH) + '...'
+    : content;
+};
+
+// Function to get sorted posts data
 export function getSortedPostsData(): PostData[] {
   try {
     const fileNames = fs.readdirSync(postsDirectory);
 
-    // Ensure that fileNames is an array of file names in the directory
     const allPostsData: PostData[] = fileNames.map(fileName => {
       const id = fileName.replace(/\.md$/, '');
       const fullPath = path.join(postsDirectory, fileName);
       const fileContents = fs.readFileSync(fullPath, 'utf8');
       const matterResult = matter(fileContents);
 
+      // Get the content for excerpt generation
+      const { content } = matterResult;
+
+      // Destructure title, date, author, and cover from the front matter
       const { title, date, author, cover } = matterResult.data as {
         title: string;
         date: string;
-        author?: string; // Author is optional here
-        cover?: string;  // Cover is optional here
+        author?: string; // Author is optional
+        cover?: string;  // Cover is optional
       };
 
       // Validate author and use default if necessary
@@ -48,7 +62,8 @@ export function getSortedPostsData(): PostData[] {
         title,
         date,
         author: validatedAuthor,
-        cover: cover || "/path-to-default-cover-image.jpg", // Default cover image if not provided
+        cover: cover || "/path-to-default-cover-image.jpg",
+        excerpt: generateExcerpt(content), // Generate excerpt from content
       };
     });
 
@@ -60,22 +75,25 @@ export function getSortedPostsData(): PostData[] {
   }
 }
 
+// Function to get a single post's data including HTML content
 export async function getPostData(id: string): Promise<PostContent> {
   const fullPath = path.join(postsDirectory, `${id}.md`);
   const fileContents = fs.readFileSync(fullPath, 'utf8');
 
   const matterResult = matter(fileContents);
 
+  // Process the content to HTML
   const processedContent = await remark()
     .use(html)
     .process(matterResult.content);
   const contentHtml = processedContent.toString();
 
+  // Destructure title, date, author, and cover from the front matter
   const { title, date, author, cover } = matterResult.data as {
     title: string;
     date: string;
-    author: string;
-    cover: string;
+    author?: string; // Author is optional
+    cover?: string;  // Cover is optional
   };
 
   // Validate author and use default if necessary
@@ -90,5 +108,6 @@ export async function getPostData(id: string): Promise<PostContent> {
     author: validatedAuthor,
     cover: cover || "/path-to-default-cover-image.jpg",
     contentHtml, // Add the converted HTML content
+    excerpt: generateExcerpt(matterResult.content), // Add the excerpt
   };
 }
