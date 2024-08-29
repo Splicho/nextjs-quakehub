@@ -14,7 +14,7 @@ interface Props {
 
 export default function News({ allPostsData }: Props) {
   return (
-    <div>
+    <>
       <h1>News</h1>
       <ul>
         {allPostsData.map(({ id, title, date }) => (
@@ -27,7 +27,7 @@ export default function News({ allPostsData }: Props) {
           </li>
         ))}
       </ul>
-    </div>
+    </>
   );
 }
 
