@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Skeleton } from './ui/skeleton';
+import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
 
 interface Server {
   ip: string;
@@ -19,7 +20,9 @@ interface Server {
 export default function Serverlist() {
   const [servers, setServers] = useState<Server[]>([]);
   const [loading, setLoading] = useState(true);
-  const [fadeIn, setFadeIn] = useState(false); // State to trigger the fade-in
+  const [fadeIn, setFadeIn] = useState(false);
+  const [selectedServer, setSelectedServer] = useState<Server | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   useEffect(() => {
     const fetchServers = async () => {
@@ -34,15 +37,19 @@ export default function Serverlist() {
         console.error('Error fetching servers:', error);
       } finally {
         setLoading(false);
-        setFadeIn(true); // Trigger fade-in after loading
+        setFadeIn(true);
       }
     };
 
     fetchServers();
   }, []);
 
+  const handleServerClick = (server: Server) => {
+    setSelectedServer(server);
+    setIsSheetOpen(true);
+  };
+
   if (loading) {
-    // Return Skeleton components while loading
     return (
       <section>
         <div className="rounded-[0.5rem] border">
@@ -70,9 +77,9 @@ export default function Serverlist() {
             <p>No servers found</p>
           ) : (
             servers.map((server, index) => (
-              <Link
+              <button
                 key={`${server.ip || 'no-ip'}:${server.port || 'no-port'}-${index}`}
-                href="/"
+                onClick={() => handleServerClick(server)}
                 className={`flex justify-between items-center gap-4 p-1 hover:bg-bgSecondary hover:text-white rounded-md transition-colors server-link
                 ${fadeIn ? 'opacity-1 translate-y-0' : 'opacity-0 translate-y-4'} 
                 transition-opacity transition-transform duration-500 delay-[${index * 100}ms]
@@ -93,11 +100,26 @@ export default function Serverlist() {
                 <div className="flex-shrink-0 w-32 text-center">
                   <span className="uppercase text-sm font-bold text-orange-400">{server.status}</span>
                 </div>
-              </Link>
+              </button>
             ))
           )}
         </div>
       </div>
+
+      {selectedServer && (
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+          <SheetContent>
+            <h2 className="text-xl font-bold mb-4">Server Details</h2>
+            <p>Name: {selectedServer.name}</p>
+            <p>IP: {selectedServer.ip}</p>
+            <p>Port: {selectedServer.port}</p>
+            <p>Map: {selectedServer.map}</p>
+            <p>Players: {selectedServer.players}/{selectedServer.max_players}</p>
+            <p>Status: {selectedServer.status}</p>
+            {/* Add more dummy data as needed */}
+          </SheetContent>
+        </Sheet>
+      )}
     </section>
   );
 }
