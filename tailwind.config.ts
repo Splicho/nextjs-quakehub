@@ -26,6 +26,7 @@ const config = {
         foreground: "hsl(var(--foreground))",
         bgSecondary: "hsl(var(--bg-secondary))",
         checkbox: "hsl(var(--checkbox))",
+        newscardbg: "hsl(var(--newscardbg))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
