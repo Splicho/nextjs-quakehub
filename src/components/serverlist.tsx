@@ -59,6 +59,7 @@ export default function Serverlist() {
       'lostworld': '/maps/lostworld.webp',
       'aerowalk': '/maps/aerowalk.webp',
       'tornado': '/maps/tornado.jpg',
+      'overkill': '/maps/overkill.jpg',
       // Add more map-to-image mappings as needed
     };
     
