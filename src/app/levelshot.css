@@ -1,0 +1,4 @@
+.levelsnapshot {
+    -webkit-mask-image: linear-gradient(to left, rgba(0, 0, 0, 1.0) 10%, transparent 80%);
+    mask-image: linear-gradient(to left, rgba(0, 0, 0, 1.0) 10%, transparent 80%);
+}

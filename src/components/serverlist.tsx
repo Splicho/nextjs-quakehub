@@ -1,10 +1,9 @@
-"use client"
+"use client";
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { Skeleton } from './ui/skeleton';
-import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 
 interface Server {
   ip: string;
@@ -49,6 +48,23 @@ export default function Serverlist() {
     setIsSheetOpen(true);
   };
 
+  const getMapImage = (mapName: string) => {
+    const mapImageMap: { [key: string]: string } = {
+      'bloodrun': '/maps/bloodrun.jpg',
+      'campgrounds': '/maps/campgrounds.jpg',
+      'furiousheights': '/maps/furiousheights.jpg',
+      'houseofdecay': '/maps/houseofdecay.jpg',
+      'toxicity': '/maps/toxicity.jpg',
+      'almostlost': '/maps/almostlost.webp',
+      'lostworld': '/maps/lostworld.webp',
+      'aerowalk': '/maps/aerowalk.webp',
+      'tornado': '/maps/tornado.jpg',
+      // Add more map-to-image mappings as needed
+    };
+    
+    return mapImageMap[mapName] || '/maps/placeholder.jpg';
+  };
+
   if (loading) {
     return (
       <section>
@@ -71,8 +87,8 @@ export default function Serverlist() {
 
   return (
     <section>
-      <div className="rounded-[0.5rem] border">
-        <div className="flex flex-col gap-1 p-1">
+      <div className="rounded-[0.5rem] border overflow-hidden">
+        <div className="flex flex-col">
           {servers.length === 0 ? (
             <p>No servers found</p>
           ) : (
@@ -80,26 +96,40 @@ export default function Serverlist() {
               <button
                 key={`${server.ip || 'no-ip'}:${server.port || 'no-port'}-${index}`}
                 onClick={() => handleServerClick(server)}
-                className={`flex justify-between items-center gap-4 p-1 hover:bg-bgSecondary hover:text-white rounded-md transition-colors server-link
+                className={`flex justify-between items-center border-b gap-4 pl-3 hover:bg-accent hover:text-white transition-colors server-link
                 ${fadeIn ? 'opacity-1 translate-y-0' : 'opacity-0 translate-y-4'} 
-                transition-opacity transition-transform duration-500 delay-[${index * 100}ms]
-                `}
+                duration-500 delay-[${index * 100}ms]`}
               >
+                {/* Country Flag */}
                 <Image
-                  src={`/flags/${server.countryCode}.png`}
-                  alt={`${server.countryCode} Flag`}
+                  src={server.countryCode ? `/flags/${server.countryCode}.png` : '/flags/placeholder.png'}
+                  alt={`${server.countryCode || 'Unknown'} Flag`}
                   className="w-6 flex-shrink-0"
-                  width={45}
-                  height={45}
+                  width={24}
+                  height={24}
                 />
+    
+                {/* Server Name */}
                 <span className="flex-grow">{server.name}</span>
+    
+                {/* Player Count */}
                 <div className="flex-shrink-0 w-12 text-center">
                   <span>{`${server.players}/${server.max_players}`}</span>
                 </div>
-                <span className="flex-shrink-0 w-80 text-center">{server.map}</span>
-                <div className="flex-shrink-0 w-32 text-center">
-                  <span className="uppercase text-sm font-bold text-orange-400">{server.status}</span>
-                </div>
+    
+                {/* Map Name and Image */}
+                <span className="flex-shrink-0 w-80 text-center relative p-2">
+                  {server.map}
+                  <div className="absolute inset-0 flex items-center justify-center z-0">
+                    <Image
+                      src={getMapImage(server.map)}
+                      alt={server.map || 'Placeholder Map'}
+                      layout="fill"
+                      objectFit="cover"
+                      className="opacity-50 transition-opacity ease-in duration-500 levelsnapshot"
+                    />
+                  </div>
+                </span>
               </button>
             ))
           )}
@@ -116,7 +146,6 @@ export default function Serverlist() {
             <p>Map: {selectedServer.map}</p>
             <p>Players: {selectedServer.players}/{selectedServer.max_players}</p>
             <p>Status: {selectedServer.status}</p>
-            {/* Add more dummy data as needed */}
           </SheetContent>
         </Sheet>
       )}

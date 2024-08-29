@@ -44,7 +44,7 @@ export default function filter() {
         </SelectContent>
       </Select>
 
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 ml-auto">
       <Checkbox id="terms" />
       <label
         htmlFor="terms"

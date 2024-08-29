@@ -1,5 +1,5 @@
 .separator {
   height: 25px;
-  background: #27272a;
+  background: hsl(var(--border));
   width: 1px;
 }

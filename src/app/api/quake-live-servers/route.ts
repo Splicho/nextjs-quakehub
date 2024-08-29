@@ -21,7 +21,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Steam API key is not set in environment variables' }, { status: 500 });
     }
 
-    const url = `https://api.steampowered.com/IGameServersService/GetServerList/v1/?key=${steamApiKey}&filter=appid%5C282440&limit=30`;
+    const url = `https://api.steampowered.com/IGameServersService/GetServerList/v1/?key=${steamApiKey}&filter=appid%5C282440&limit=10`;
     console.log('Request URL:', url);
 
     const response = await fetch(url);

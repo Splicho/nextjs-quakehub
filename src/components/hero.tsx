@@ -36,7 +36,7 @@ export default function hero() {
         <BlurFade delay={0.25 * 2} inView>
         <h1 className="text-5xl font-bold tracking-tighter text-white">
           Real-Time{" "}
-          <span className="bg-gradient-to-r from-red-500 to-red-800 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text text-transparent">
             Quake Live
           </span>{" "}
           Server Tracking
