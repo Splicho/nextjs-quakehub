@@ -5,6 +5,7 @@ import NewsCard from "@/components/NewsCard";
 import { config } from "@/config/app";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
+import BlurFade from "@/components/magicui/blur-fade";
 
 interface PostData {
   id: string;
@@ -19,9 +20,13 @@ interface Props {
   allPostsData: PostData[];
 }
 
+const duration = 0.4
+const delay = 0.5
+
 export default function News({ allPostsData }: Props) {
   return (
     <div className="max-w-7xl mx-auto py-12 sm:py-24 px-6">
+      
       <Link href="/" passHref>
         <Button variant="outline" className="group">
           <ChevronLeft size={18} className="mr-1 transition-transform duration-300 group-hover:translate-x-[-0.2rem]" />
@@ -40,6 +45,7 @@ export default function News({ allPostsData }: Props) {
             config.news.authors[author] || "/path-to-default-author-image.jpg";
 
           return (
+            <BlurFade duration={ duration } delay={ delay }>
             <NewsCard
               key={id}
               title={title}
@@ -51,10 +57,12 @@ export default function News({ allPostsData }: Props) {
               badgeText="Update" // Change based on post type if needed
               authorImg={authorImg}
             />
+            </BlurFade>
           );
         })}
       </div>
     </div>
+    
   );
 }
 
