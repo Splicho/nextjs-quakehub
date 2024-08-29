@@ -20,8 +20,8 @@ interface Props {
   allPostsData: PostData[];
 }
 
-const duration = 0.4
-const delay = 0.5
+const BLUR_FADE_DURATION = 0.4;
+const BLUR_FADE_DELAY = 0.5;
 
 export default function News({ allPostsData }: Props) {
   return (
@@ -45,7 +45,7 @@ export default function News({ allPostsData }: Props) {
             config.news.authors[author] || "/path-to-default-author-image.jpg";
 
           return (
-            <BlurFade duration={ duration } delay={ delay }>
+            <BlurFade key={id} duration={BLUR_FADE_DURATION} delay={BLUR_FADE_DELAY} inView>
             <NewsCard
               key={id}
               title={title}

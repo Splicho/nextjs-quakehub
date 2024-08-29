@@ -6,7 +6,7 @@ export const config = {
       authors: {
         isevendeuce: "/news/authors/isevendeuce.jpg",
         // Add more authors as needed
-      } as Record<string, string>, // Use Record to allow dynamic string keys
+      } as Record<string, string>,
     },
   };
   
