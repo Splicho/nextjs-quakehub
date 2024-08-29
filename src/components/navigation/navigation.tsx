@@ -33,7 +33,7 @@ export default function navigation() {
       </div>
       <div className="flex gap-5 ml-auto">
       <div className="flex gap-5">
-        <Link href="/">News</Link>
+        <Link href="/news">News</Link>
         <Link href="">Resources</Link>
       </div>
       <div className={styles.separator}></div>
