@@ -5,27 +5,29 @@ import AnimatedShinyText from "@/components/magicui/animated-shiny-text";
 import BlurFade from "@/components/magicui/blur-fade";
 import { cn } from "@/lib/utils";
 import { PostData } from '@/lib/posts';
+import { ChevronRightIcon } from 'lucide-react';
+import Link from 'next/link';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
 
 export default function DynamicHero() {
-  const [latestPostTitle, setLatestPostTitle] = useState<string | null>(null);
+  const [latestPost, setLatestPost] = useState<PostData | null>(null);
 
   useEffect(() => {
-    async function fetchLatestPostTitle() {
+    async function fetchLatestPost() {
       try {
         const res = await fetch(`${API_BASE_URL}/api/content/news`);
         if (!res.ok) throw new Error('Failed to fetch posts');
         const posts: PostData[] = await res.json();
         if (posts.length > 0) {
-          setLatestPostTitle(posts[0].title);
+          setLatestPost(posts[0]);
         }
       } catch (error) {
         console.error('Error fetching latest post:', error);
       }
     }
 
-    fetchLatestPostTitle();
+    fetchLatestPost();
   }, []);
 
   return (
@@ -50,13 +52,15 @@ export default function DynamicHero() {
                 "group rounded-full border border-black/5 bg-neutral-100 text-base text-white transition-all ease-in hover:cursor-pointer hover:bg-neutral-200 dark:border-white/5 dark:bg-neutral-900 dark:hover:bg-neutral-800"
               )}
             >
-              <AnimatedShinyText className="inline-flex items-center justify-center px-4 py-1 transition ease-out hover:text-neutral-600 hover:duration-300 hover:dark:text-neutral-400">
-                {latestPostTitle ? (
-                  <span>Latest: {latestPostTitle}</span>
-                ) : (
-                  <span>QuakeHub v1 is live!</span>
-                )}
-              </AnimatedShinyText>
+              <Link href={latestPost ? `/news/${latestPost.id}` : '/news'}>
+                <AnimatedShinyText className="inline-flex items-center justify-center px-4 py-1 transition ease-out hover:text-neutral-600 hover:duration-300 hover:dark:text-neutral-400">
+                  {latestPost ? (
+                    <span className="flex items-center gap-2 text-sm">{latestPost.title} <ChevronRightIcon className="w-4 h-4" /></span>
+                  ) : (
+                    <span>🎉 QuakeHub v1 is live!</span>
+                  )}
+                </AnimatedShinyText>
+              </Link>
             </div>
           </BlurFade>
         </div>

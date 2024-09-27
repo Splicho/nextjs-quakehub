@@ -10,10 +10,8 @@ export async function GET(request: Request) {
   const id = searchParams.get('id');
 
   if (id) {
-    // Handle single post request
     return getSinglePost(id);
   } else {
-    // Handle all posts request
     return getAllPosts();
   }
 }

@@ -9,8 +9,10 @@ import BlurFade from "@/components/magicui/blur-fade";
 const BLUR_FADE_DURATION = 0.4;
 const BLUR_FADE_DELAY = 0.5;
 
+export const revalidate = 0; // This ensures the page is not cached
+
 export default async function News() {
-  const allPostsData = await getSortedPostsData(/* Add required argument here */);
+  const allPostsData = await getSortedPostsData();
 
   return (
     <div className="max-w-7xl mx-auto py-12 sm:py-24 px-6">

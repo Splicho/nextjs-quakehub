@@ -24,7 +24,7 @@ export default async function Post({ params }: PostProps) {
     console.log('Post data fetched:', postData);
     
     return (
-      <div className='max-w-7xl mx-auto py-12 sm:py-24 px-6'>
+      <div className='max-w-[1440px] mx-auto py-12 sm:py-24 px-6'>
         <h1 className='text-4xl tracking-tight font-bold'>{postData.title}</h1>
         <div dangerouslySetInnerHTML={{ __html: postData.contentHtml }} />
       </div>

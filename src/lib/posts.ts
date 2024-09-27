@@ -27,7 +27,7 @@ const generateExcerpt = (content: string): string => {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
 
 export async function getSortedPostsData(): Promise<PostData[]> {
-  const res = await fetch(`${API_BASE_URL}/api/content/news`);
+  const res = await fetch(`${API_BASE_URL}/api/content/news?t=${Date.now()}`);
   if (!res.ok) throw new Error('Failed to fetch posts');
   const posts = await res.json();
   return posts.sort((a: PostData, b: PostData) => (a.date < b.date ? 1 : -1));
