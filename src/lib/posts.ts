@@ -30,12 +30,12 @@ const generateExcerpt = (content: string): string => {
     : content;
 };
 
-// Function to get sorted posts data
-export function getSortedPostsData(): PostData[] {
+// Update the getSortedPostsData function
+export async function getSortedPostsData(): Promise<PostData[]> {
   try {
     const fileNames = fs.readdirSync(postsDirectory);
 
-    const allPostsData: PostData[] = fileNames.map(fileName => {
+    const allPostsData = await Promise.all(fileNames.map(async (fileName) => {
       const id = fileName.replace(/\.md$/, '');
       const fullPath = path.join(postsDirectory, fileName);
       const fileContents = fs.readFileSync(fullPath, 'utf8');
@@ -65,7 +65,7 @@ export function getSortedPostsData(): PostData[] {
         cover: cover || "/path-to-default-cover-image.jpg",
         excerpt: generateExcerpt(content), // Generate excerpt from content
       };
-    });
+    }));
 
     // Sort posts by date, with the most recent first
     return allPostsData.sort((a, b) => (a.date < b.date ? 1 : -1));
@@ -110,4 +110,14 @@ export async function getPostData(id: string): Promise<PostContent> {
     contentHtml, // Add the converted HTML content
     excerpt: generateExcerpt(matterResult.content), // Add the excerpt
   };
+}
+
+// Add a new function to get all post ids
+export function getAllPostIds() {
+  const fileNames = fs.readdirSync(postsDirectory);
+  return fileNames.map(fileName => ({
+    params: {
+      id: fileName.replace(/\.md$/, '')
+    }
+  }));
 }
