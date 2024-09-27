@@ -1,4 +1,4 @@
-import { getAllPostIds, getPostData, PostContent } from '@/lib/posts';
+import { getAllPostIds, getPostData } from '@/lib/posts';
 import { notFound } from 'next/navigation';
 
 interface PostProps {
@@ -6,19 +6,22 @@ interface PostProps {
 }
 
 export async function generateStaticParams() {
-  const paths = getAllPostIds();
-  return paths.map((path) => ({
+  const paths = await getAllPostIds();
+  return paths.map((path: { params: { id: string } }) => ({
     id: path.params.id,
   }));
 }
 
 export default async function Post({ params }: PostProps) {
+  console.log('Attempting to fetch post with id:', params.id);
+
   if (!params || typeof params.id !== 'string') {
     notFound();
   }
 
   try {
     const postData = await getPostData(params.id);
+    console.log('Post data fetched:', postData);
     
     return (
       <div className='max-w-7xl mx-auto py-12 sm:py-24 px-6'>

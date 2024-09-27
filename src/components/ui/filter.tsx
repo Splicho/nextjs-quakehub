@@ -45,23 +45,23 @@ export default function filter() {
       </Select>
 
       <div className="flex items-center space-x-2 ml-auto">
-      <Checkbox id="terms" />
+      <Checkbox id="full-servers" />
       <label
-        htmlFor="terms"
+        htmlFor="full-servers"
         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
       >
         Show full servers
       </label>
-      <Checkbox id="terms" />
+      <Checkbox id="empty-servers" />
       <label
-        htmlFor="terms"
+        htmlFor="empty-servers"
         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
       >
         Show empty servers
       </label>
-      <Checkbox id="terms" />
+      <Checkbox id="private-servers" />
       <label
-        htmlFor="terms"
+        htmlFor="private-servers"
         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
       >
         Show private servers

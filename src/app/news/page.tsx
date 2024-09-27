@@ -10,7 +10,7 @@ const BLUR_FADE_DURATION = 0.4;
 const BLUR_FADE_DELAY = 0.5;
 
 export default async function News() {
-  const allPostsData = await getSortedPostsData();
+  const allPostsData = await getSortedPostsData(/* Add required argument here */);
 
   return (
     <div className="max-w-7xl mx-auto py-12 sm:py-24 px-6">
@@ -27,7 +27,14 @@ export default async function News() {
         </p>
       </div>
       <div className="flex gap-6">
-        {allPostsData.map(({ id, title, date, author, cover, excerpt }) => {
+        {allPostsData.map(({ id, title, date, author, cover, excerpt }: {
+          id: string;
+          title: string;
+          date: string;
+          author: string;
+          cover: string;
+          excerpt: string;
+        }) => {
           const authorImg =
             config.news.authors[author] || "/path-to-default-author-image.jpg";
 
