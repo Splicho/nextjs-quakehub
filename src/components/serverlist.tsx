@@ -22,6 +22,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Server, FiltersType } from '../../types/types';
+
 
 interface Player {
   name: string;
@@ -29,25 +31,6 @@ interface Player {
   score: number;
   'plain-name': string;
   // ... other player properties
-}
-
-interface Server {
-  addr: string;
-  name: string;
-  mapname: string;
-  humans: number;
-  maxplayers: number;
-  game: string;
-  country: {
-    code: string;
-    name: string;
-    continent: string;
-  };
-  players: Player[];
-  spectators: number;
-  visibility: "public" | "private" | string;
-  continent: string;
-  tags: string[];
 }
 
 const colorMap: Record<string, string> = {
@@ -82,7 +65,7 @@ function formatPlayerName(name: string): JSX.Element {
 function ServerList() {
   const [servers, setServers] = useState<Server[]>([]);
   const [filteredServers, setFilteredServers] = useState<Server[]>([]);
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<FiltersType>({
     continent: "all",
     showFullServers: true,
     showEmptyServers: true,
@@ -152,7 +135,7 @@ function ServerList() {
 
       if (
         filters.tags.length > 0 &&
-        !filters.tags.every((tag) => server.tags.includes(tag))
+        !filters.tags.every((tag: string) => server.tags.includes(tag))
       ) {
         return false;
       }
@@ -186,13 +169,15 @@ function ServerList() {
 
   const debouncedTagsChange = useCallback(
     debounce((tags: string[]) => {
-      setFilters((prev) => ({ ...prev, tags }));
+      setFilters((prev: FiltersType) => ({ ...prev, tags }));
     }, 300),
     []
   );
 
   useEffect(() => {
-    const tagArray = Array.isArray(filters.tags) ? filters.tags : filters.tags.split(',');
+    const tagArray = Array.isArray(filters.tags) 
+      ? filters.tags 
+      : (filters.tags as string).split(',');
     debouncedTagsChange(tagArray);
   }, [filters.tags, debouncedTagsChange]);
 
@@ -303,22 +288,22 @@ function ServerList() {
   return (
     <section>
       <Filter
-        onGameChange={(game) => setFilters((prev) => ({ ...prev, game }))}
+        onGameChange={(game) => setFilters((prev: FiltersType) => ({ ...prev, game }))}
         onContinentChange={(continent) => {
           console.log("Continent changed to:", continent);
-          setFilters((prev) => ({ ...prev, continent }));
+          setFilters((prev: FiltersType) => ({ ...prev, continent }));
         }}
         onShowFullServersChange={(show) =>
-          setFilters((prev) => ({ ...prev, showFullServers: show }))
+            setFilters((prev: FiltersType) => ({ ...prev, showFullServers: show }))
         }
         onShowEmptyServersChange={(show) =>
-          setFilters((prev) => ({ ...prev, showEmptyServers: show }))
+          setFilters((prev: FiltersType) => ({ ...prev, showEmptyServers: show }))
         }
         onShowPrivateServersChange={(show) =>
-          setFilters((prev) => ({ ...prev, showPrivateServers: show }))
+          setFilters((prev: FiltersType) => ({ ...prev, showPrivateServers: show }))
         }
         onTagsChange={(tags) => {
-          setFilters((prev) => ({ ...prev, tags }));
+          setFilters((prev: FiltersType) => ({ ...prev, tags }));
         }}
       />
       <div className="rounded-[0.5rem] border overflow-hidden">
