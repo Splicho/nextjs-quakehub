@@ -330,7 +330,7 @@ function ServerList() {
               <button
                 key={server.addr}
                 onClick={() => handleServerClick(server)}
-                className={`flex justify-between items-center border-b gap-4 pl-3 hover:bg-accent hover:text-white transition-colors server-link
+                className={`flex justify-between items-center border-b gap-4 pl-3 hover:bg-accent hover:text-white transition-colors duration-150 server-link
                 ${
                   fadeIn ? "opacity-1 translate-y-0" : "opacity-0 translate-y-4"
                 } 
