@@ -24,7 +24,7 @@ const generateExcerpt = (content: string): string => {
 };
 
 // Update the getSortedPostsData function
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export async function getSortedPostsData(): Promise<PostData[]> {
   const res = await fetch(`${API_BASE_URL}/api/content/news?t=${Date.now()}`);

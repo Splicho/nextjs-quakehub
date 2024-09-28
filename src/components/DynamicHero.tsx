@@ -8,7 +8,7 @@ import { PostData } from '@/lib/posts';
 import { ChevronRightIcon } from 'lucide-react';
 import Link from 'next/link';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function DynamicHero() {
   const [latestPost, setLatestPost] = useState<PostData | null>(null);
