@@ -6,22 +6,24 @@ interface PostProps {
 }
 
 export async function generateStaticParams() {
-  const paths = await getAllPostIds();
-  return paths.map((path: { params: { id: string } }) => ({
-    id: path.params.id,
-  }));
+  try {
+    const paths = await getAllPostIds();
+    return paths.map((path: { params: { id: string } }) => ({
+      id: path.params.id,
+    }));
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return [];
+  }
 }
 
 export default async function Post({ params }: PostProps) {
-  console.log('Attempting to fetch post with id:', params.id);
-
   if (!params || typeof params.id !== 'string') {
-    notFound();
+    return notFound();
   }
 
   try {
     const postData = await getPostData(params.id);
-    console.log('Post data fetched:', postData);
     
     return (
       <div className='max-w-[1440px] mx-auto py-12 sm:py-24 px-6'>
@@ -31,9 +33,8 @@ export default async function Post({ params }: PostProps) {
     );
   } catch (error) {
     console.error('Error fetching post:', error);
-    notFound();
+    return notFound();
   }
 }
 
-// Optionally, you can add this to enable ISR (Incremental Static Regeneration)
 export const revalidate = 10;
