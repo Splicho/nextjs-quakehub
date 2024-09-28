@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import Image from "next/image";
 import { Skeleton } from "./ui/skeleton";
 import {
@@ -12,12 +12,23 @@ import {
 } from "@/components/ui/sheet";
 import Filter from "@/components/ui/filter";
 import { Button } from "./ui/button";
+import { debounce } from 'lodash';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface Player {
   name: string;
   duration: number;
   score: number;
-  "plain-name": string;
+  'plain-name': string;
+  // ... other player properties
 }
 
 interface Server {
@@ -26,15 +37,17 @@ interface Server {
   mapname: string;
   humans: number;
   maxplayers: number;
-  game: string; // Changed from gamestate to game
+  game: string;
   country: {
     code: string;
     name: string;
     continent: string;
   };
   players: Player[];
+  spectators: number;
   visibility: "public" | "private" | string;
-  continent: string; // Added continent property
+  continent: string;
+  tags: string[];
 }
 
 const colorMap: Record<string, string> = {
@@ -74,18 +87,18 @@ function ServerList() {
     showFullServers: true,
     showEmptyServers: true,
     showPrivateServers: true,
-    game: "all", // Changed from gameMode to game
-    // Remove or rename any other occurrence of 'game' or 'gameMode'
-    // ... other filter states
+    game: "all",
+    tags: [],
   });
   const [isLoading, setIsLoading] = useState(true);
   const [selectedServer, setSelectedServer] = useState<Server | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [fadeIn, setFadeIn] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const serversPerPage = 20;
 
   useEffect(() => {
     fetchServers();
-    // Add this to trigger the fade-in effect after component mount
     setTimeout(() => setFadeIn(true), 100);
   }, []);
 
@@ -111,7 +124,6 @@ function ServerList() {
 
   const applyFilters = () => {
     const filtered = servers.filter((server) => {
-      // Filter by continent
       if (
         filters.continent !== "all" &&
         server.country.continent !== filters.continent
@@ -119,25 +131,28 @@ function ServerList() {
         return false;
       }
 
-      // Filter full servers
       if (!filters.showFullServers && server.humans >= server.maxplayers) {
         return false;
       }
 
-      // Filter empty servers
       if (!filters.showEmptyServers && server.humans === 0) {
         return false;
       }
 
-      // Filter private servers
       if (!filters.showPrivateServers && server.visibility === "private") {
         return false;
       }
 
-      // Filter by game mode
       if (
         filters.game !== "all" &&
         server.game.toLowerCase() !== filters.game.toLowerCase()
+      ) {
+        return false;
+      }
+
+      if (
+        filters.tags.length > 0 &&
+        !filters.tags.every((tag) => server.tags.includes(tag))
       ) {
         return false;
       }
@@ -164,10 +179,102 @@ function ServerList() {
       aerowalk: "/maps/aerowalk.webp",
       tornado: "/maps/tornado.jpg",
       overkill: "/maps/overkill.jpg",
-      // Add more map-to-image mappings as needed
     };
 
     return mapImageMap[mapName] || "/maps/placeholder.jpg";
+  };
+
+  const debouncedTagsChange = useCallback(
+    debounce((tags: string[]) => {
+      setFilters((prev) => ({ ...prev, tags }));
+    }, 300),
+    []
+  );
+
+  useEffect(() => {
+    const tagArray = Array.isArray(filters.tags) ? filters.tags : filters.tags.split(',');
+    debouncedTagsChange(tagArray);
+  }, [filters.tags, debouncedTagsChange]);
+
+  const paginatedServers = useMemo(() => {
+    const startIndex = (currentPage - 1) * serversPerPage;
+    return filteredServers.slice(startIndex, startIndex + serversPerPage);
+  }, [filteredServers, currentPage]);
+
+  const totalPages = Math.ceil(filteredServers.length / serversPerPage);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo(0, 0);
+  };
+
+  const handleConnect = (serverAddress: string) => {
+    const steamConnectURL = `steam://connect/${serverAddress}`;
+    window.location.href = steamConnectURL;
+  };
+
+  const renderPaginationItems = () => {
+    let items = [];
+    const rangeStart = Math.max(2, currentPage - 1);
+    const rangeEnd = Math.min(totalPages - 1, currentPage + 1);
+
+    items.push(
+      <PaginationItem key={1}>
+        <PaginationLink
+          onClick={() => handlePageChange(1)}
+          isActive={currentPage === 1}
+          className="cursor-pointer"
+        >
+          1
+        </PaginationLink>
+      </PaginationItem>
+    );
+
+    if (rangeStart > 2) {
+      items.push(
+        <PaginationItem key="ellipsis-1">
+          <PaginationEllipsis />
+        </PaginationItem>
+      );
+    }
+
+    for (let i = rangeStart; i <= rangeEnd; i++) {
+      items.push(
+        <PaginationItem key={i}>
+          <PaginationLink
+            onClick={() => handlePageChange(i)}
+            isActive={currentPage === i}
+            className="cursor-pointer"
+          >
+            {i}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    if (rangeEnd < totalPages - 1) {
+      items.push(
+        <PaginationItem key="ellipsis-2">
+          <PaginationEllipsis />
+        </PaginationItem>
+      );
+    }
+
+    if (totalPages > 1) {
+      items.push(
+        <PaginationItem key={totalPages}>
+          <PaginationLink
+            onClick={() => handlePageChange(totalPages)}
+            isActive={currentPage === totalPages}
+            className="cursor-pointer"
+          >
+            {totalPages}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    return items;
   };
 
   if (isLoading) {
@@ -210,13 +317,16 @@ function ServerList() {
         onShowPrivateServersChange={(show) =>
           setFilters((prev) => ({ ...prev, showPrivateServers: show }))
         }
+        onTagsChange={(tags) => {
+          setFilters((prev) => ({ ...prev, tags }));
+        }}
       />
       <div className="rounded-[0.5rem] border overflow-hidden">
         <div className="flex flex-col">
-          {filteredServers.length === 0 ? (
-            <p>No servers found</p>
+          {paginatedServers.length === 0 ? (
+            <p className="text-center text-muted-foreground p-4">No servers found</p>
           ) : (
-            filteredServers.map((server, index) => (
+            paginatedServers.map((server, index) => (
               <button
                 key={server.addr}
                 onClick={() => handleServerClick(server)}
@@ -226,7 +336,6 @@ function ServerList() {
                 } 
                 duration-500 delay-[${index * 100}ms]`}
               >
-                {/* Country Flag */}
                 <Image
                   src={
                     server.country.code
@@ -239,15 +348,12 @@ function ServerList() {
                   height={24}
                 />
 
-                {/* Server Name */}
                 <span className="flex-grow">{server.name}</span>
 
-                {/* Player Count */}
                 <div className="flex-shrink-0 w-12 text-center">
                   <span>{`${server.humans}/${server.maxplayers}`}</span>
                 </div>
 
-                {/* Map Name and Image */}
                 <span className="flex-shrink-0 w-80 text-center relative p-2">
                   {server.mapname}
                   <div className="absolute inset-0 flex items-center justify-center z-0">
@@ -266,9 +372,27 @@ function ServerList() {
         </div>
       </div>
 
+      <Pagination className="mt-4">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious 
+              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+              className={`cursor-pointer ${currentPage === 1 ? "pointer-events-none opacity-50" : ""}`}
+            />
+          </PaginationItem>
+          {renderPaginationItems()}
+          <PaginationItem>
+            <PaginationNext 
+              onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+              className={`cursor-pointer ${currentPage === totalPages ? "pointer-events-none opacity-50" : ""}`}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+
       {selectedServer && (
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetContent className="overflow-y-auto">
+          <SheetContent className="overflow-y-auto flex flex-col">
             <SheetHeader>
               <SheetTitle className="text-2xl font-bold">
                 {selectedServer.name}
@@ -277,7 +401,7 @@ function ServerList() {
                 {selectedServer.addr} • {selectedServer.country.name}
               </SheetDescription>
             </SheetHeader>
-            <div className="mt-6 space-y-4">
+            <div className="mt-6 space-y-4 flex-grow">
               <div className="grid grid-cols-2 gap-4">
                 <ServerInfoItem label="Map" value={selectedServer.mapname} />
                 <ServerInfoItem
@@ -286,22 +410,27 @@ function ServerList() {
                 />
               </div>
               <div className="mt-6">
-                <h3 className="text-lg font-semibold mb-2">Players</h3>
-                <div className="bg-[#33312e] rounded-md overflow-hidden">
+                <h3 className="text-lg font-semibold mb-2">Players and Spectators</h3>
+                <div className="bg-secondary rounded-md overflow-hidden">
                   {selectedServer.players.map((player, index) => (
                     <div
                       key={index}
                       className={`flex justify-between items-center p-2 ${
-                        index % 2 === 0 ? "bg-[#33312e]" : "bg-[#2b2927]"
+                        index % 2 === 0 ? "bg-[#312f2d]" : "bg-[#3f3c39]"
                       }`}
                     >
                       <span>{formatPlayerName(player.name)}</span>
                       <span className="text-sm text-muted-foreground">
-                        Score: {player.score}
+                        {player.score === 0 ? "Spectator" : `Score: ${player.score}`}
                       </span>
                     </div>
                   ))}
                 </div>
+              </div>
+              <div className="mt-4">
+                <p className="text-sm text-muted-foreground">
+                  Total Spectators: {selectedServer.spectators}
+                </p>
               </div>
             </div>
             <div className="mt-6">
@@ -318,15 +447,11 @@ function ServerList() {
       )}
     </section>
   );
-  function handleConnect(serverAddress: string) {
-    const steamConnectURL = `steam://connect/${serverAddress}`;
-    window.location.href = steamConnectURL;
-  }
 }
 
 function ServerInfoItem({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-[#33312e] rounded-md p-3">
+    <div className="bg-[#312f2d] rounded-md p-3">
       <div className="text-sm font-medium text-muted-foreground">{label}</div>
       <div className="mt-1 text-lg">{value}</div>
     </div>

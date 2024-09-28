@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Select,
   SelectContent,
@@ -9,6 +9,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from "@/components/ui/input";
+import { debounce } from 'lodash'; // Make sure to install lodash if you haven't already
 
 interface FilterProps {
   onGameChange: (game: string) => void;
@@ -16,20 +18,39 @@ interface FilterProps {
   onShowFullServersChange: (show: boolean) => void;
   onShowEmptyServersChange: (show: boolean) => void;
   onShowPrivateServersChange: (show: boolean) => void;
+  onTagsChange: (tags: string[]) => void;
 }
 
-const games = ['All Gamemodes', 'Clan Arena', 'Duel', 'Capture The Flag', 'Team Deathmatch', 'Free For All']; // Updated game modes
-const continents = ['All Regions', 'NA', 'EU', 'AS', 'OC']; // Example continents, adjust as needed
+const games = ['All Gamemodes', 'Clan Arena', 'Duel', 'Capture The Flag', 'Team Deathmatch', 'Free For All'];
+const continents = ['All Regions', 'NA', 'EU', 'AS', 'OC'];
 
 export default function Filter({
   onGameChange,
   onContinentChange,
   onShowFullServersChange,
   onShowEmptyServersChange,
-  onShowPrivateServersChange
+  onShowPrivateServersChange,
+  onTagsChange
 }: FilterProps) {
+  const [tags, setTags] = useState("");
+
+  // Debounce the onTagsChange callback
+  const debouncedTagsChange = useCallback(
+    debounce((tags: string[]) => onTagsChange(tags), 300),
+    [onTagsChange]
+  );
+
+  useEffect(() => {
+    const tagArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
+    debouncedTagsChange(tagArray);
+  }, [tags, debouncedTagsChange]);
+
+  const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTags(e.target.value);
+  };
+
   return (
-    <div className="mb-5 flex gap-5">
+    <div className="mb-5 flex flex-wrap gap-5 items-center">
       <Select onValueChange={onGameChange}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="Select Gamemode" />
@@ -50,7 +71,13 @@ export default function Filter({
           ))}
         </SelectContent>
       </Select>
-
+      <Input
+        type="text"
+        placeholder="Enter tags"
+        value={tags}
+        onChange={handleTagsChange}
+        className="w-[250px]"
+      />
       <div className="flex items-center space-x-2 ml-auto">
         <Checkbox id="full-servers" onCheckedChange={onShowFullServersChange} />
         <label htmlFor="full-servers" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
